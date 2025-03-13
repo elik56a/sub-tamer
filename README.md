@@ -15,6 +15,8 @@ SubTamer is a modern web application that helps users track, manage, and optimiz
 
 ## Tech Stack
 
+
+
 - **Framework:** Next.js 14
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS
