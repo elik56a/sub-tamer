@@ -20,6 +20,9 @@ import {
   Globe,
   Menu,
   LogOut,
+  Loader,
+  Chrome,
+  ChevronRight,
 } from "lucide-react"
 
 export const Icons = {
@@ -45,6 +48,9 @@ export const Icons = {
   menu: Menu,
   logout: LogOut,
   logo: Globe,
+  loader: Loader,
+  google: Chrome,
+  chevronRight: ChevronRight,
 }
 
 export const IconColors = {
@@ -70,4 +76,7 @@ export const IconColors = {
   menu: "text-gray-500",
   logout: "text-red-500",
   logo: "text-blue-500",
+  loader: "text-gray-500",
+  google: "text-blue-500",
+  chevronRight: "text-gray-500",
 } 
