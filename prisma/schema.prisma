@@ -44,10 +44,10 @@ model User {
   emailVerified DateTime?
   image         String?
   stripeCustomerId String? @unique
-  subscription  Subscription?
+  subscription  Subscription? @relation("UserSubscription")
   accounts      Account[]
   sessions      Session[]
-  subscriptions Subscription[]
+  subscriptions Subscription[] @relation("UserSubscriptions")
   plaidItems    PlaidItem[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -65,7 +65,7 @@ model VerificationToken {
 model Subscription {
   id            String   @id @default(cuid())
   userId        String   @unique
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User     @relation("UserSubscription", fields: [userId], references: [id], onDelete: Cascade)
   stripePriceId String
   stripeCustomerId String
   stripeSubscriptionId String @unique
@@ -75,6 +75,10 @@ model Subscription {
   cancelAtPeriodEnd  Boolean @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  plaidItemId   String?
+  plaidItem     PlaidItem? @relation(fields: [plaidItemId], references: [id], onDelete: SetNull)
+  userSubscriptionsId String?
+  userSubscriptions User? @relation("UserSubscriptions", fields: [userSubscriptionsId], references: [id], onDelete: SetNull)
 }
 
 model PlaidItem {
