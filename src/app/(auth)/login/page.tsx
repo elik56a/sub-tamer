@@ -2,15 +2,44 @@
 
 import { Suspense } from "react"
 import { useSearchParams } from "next/navigation"
-import { signIn } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Icons } from "@/components/shared/icons"
 import { motion } from "framer-motion"
+import { useEffect } from "react"
 
 function LoginContent() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const searchParams = useSearchParams()
   const plan = searchParams?.get("plan") || null
+
+  useEffect(() => {
+    if (session) {
+      router.push("/dashboard")
+    }
+  }, [session, router])
+
+  const handleGoogleSignIn = async () => {
+    try {
+      await signIn("google", { 
+        callbackUrl: plan ? `/dashboard?plan=${plan}` : "/dashboard",
+        redirect: true
+      })
+    } catch (error) {
+      console.error("Sign in error:", error)
+    }
+  }
+
+  if (status === "loading") {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Icons.loader className="h-8 w-8 animate-spin" />
+      </div>
+    )
+  }
 
   return (
     <div className="container relative h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
@@ -52,7 +81,7 @@ function LoginContent() {
             <CardContent className="grid gap-4">
               <Button
                 variant="outline"
-                onClick={() => signIn("google", { callbackUrl: plan ? `/dashboard?plan=${plan}` : "/dashboard" })}
+                onClick={handleGoogleSignIn}
                 className="w-full"
               >
                 <Icons.google className="mr-2 h-4 w-4" />

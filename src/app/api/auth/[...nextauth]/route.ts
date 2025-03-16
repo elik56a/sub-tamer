@@ -27,16 +27,31 @@ const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
   ],
-  pages: {
-    signIn: "/login",
-  },
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  pages: {
+    signIn: "/login",
+    error: "/auth/error",
+  },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (!user?.email) {
+        return false
+      }
+      return true
+    },
     async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id
@@ -50,13 +65,15 @@ const authOptions: NextAuthOptions = {
       return session
     },
     async redirect({ url, baseUrl }) {
-      // Allows relative callback URLs
-      if (url.startsWith("/")) return `${baseUrl}${url}`
-      // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) return url
-      return baseUrl + "/dashboard"
+      if (url.startsWith("/")) {
+        return `${baseUrl}${url}`
+      } else if (url.startsWith(baseUrl)) {
+        return url
+      }
+      return `${baseUrl}/dashboard`
     },
   },
+  debug: process.env.NODE_ENV === "development",
 }
 
 const handler = NextAuth(authOptions)
