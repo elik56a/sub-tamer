@@ -12,6 +12,7 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/login",
+    error: "/auth/error",
   },
   providers: [
     GoogleProvider({
@@ -21,13 +22,18 @@ export const authOptions: NextAuthOptions = {
         params: {
           prompt: "consent",
           access_type: "offline",
-          response_type: "code",
-          scope: "openid email profile"
+          response_type: "code"
         }
       }
     }),
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "google") {
+        return true
+      }
+      return false
+    },
     async session({ token, session }) {
       if (token) {
         session.user.id = token.id
@@ -56,13 +62,17 @@ export const authOptions: NextAuthOptions = {
       }
     },
     async redirect({ url, baseUrl }) {
-      // Allows relative callback URLs
-      if (url.startsWith("/")) return `${baseUrl}${url}`
-      // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) return url
-      // Default to dashboard
-      return baseUrl + "/dashboard"
-    },
+      // Allow relative URLs
+      if (url.startsWith("/")) {
+        return `${baseUrl}${url}`
+      }
+      // Allow URLs of the same origin
+      else if (url.startsWith(baseUrl)) {
+        return url
+      }
+      // Default redirect to dashboard
+      return `${baseUrl}/dashboard`
+    }
   },
   debug: process.env.NODE_ENV === "development",
 } 

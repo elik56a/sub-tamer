@@ -3,15 +3,20 @@ import { NextResponse } from "next/server"
 
 export default withAuth(
   function middleware(req) {
-    // If the user is logged in and trying to access login page
-    if (req.nextauth.token && req.nextUrl.pathname === "/login") {
-      return NextResponse.redirect(new URL("/dashboard", req.url))
+    const { pathname, origin } = req.nextUrl
+
+    // If user is authenticated and trying to access login page
+    if (req.nextauth.token && pathname === "/login") {
+      return NextResponse.redirect(`${origin}/dashboard`)
     }
+
     return NextResponse.next()
   },
   {
     callbacks: {
       authorized: ({ token, req }) => {
+        const { pathname } = req.nextUrl
+
         // Allow access to public routes without authentication
         const publicRoutes = [
           "/",
@@ -32,20 +37,24 @@ export default withAuth(
           "/status",
           "/api/auth/callback/google"
         ]
-        if (publicRoutes.includes(req.nextUrl.pathname)) {
+
+        // Always allow access to public routes
+        if (publicRoutes.includes(pathname)) {
           return true
         }
 
-        // Require authentication for all other routes
+        // For protected routes, require authentication
         return !!token
       },
     },
     pages: {
       signIn: "/login",
+      error: "/auth/error",
     },
   }
 )
 
+// Update matcher to include auth-related paths
 export const config = {
   matcher: [
     /*
@@ -56,6 +65,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public folder
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|public).*)",
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|public).*)",
   ],
 } 
