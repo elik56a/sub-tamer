@@ -6,6 +6,8 @@ export default function MarketingLayout({
 }: {
   children: React.ReactNode
 }) {
+  //console log the setion
+  console.log('user here')
   return (
     <div className="flex min-h-screen flex-col">
       <MarketingNav />
