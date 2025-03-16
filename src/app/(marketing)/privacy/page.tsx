@@ -12,7 +12,7 @@ export default function PrivacyPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="mx-auto max-w-4xl"
+              className="mx-auto max-w-4xl" 
             >
               <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
                 Privacy Policy
